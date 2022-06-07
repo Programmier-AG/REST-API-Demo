@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Display</title>
+    <style>
+        body, html, .center {
+            height: 100vh;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <h1 id="the-text">Text field</h1>
+    </div>
+
+    <script>
+        function getText() {
+            return new Promise(async (resolve, reject) => {
+                const textRequest = await fetch('/api/text/get');
+                const textJSON = await textRequest.json();
+                return resolve(textJSON);
+            });
+        }
+
+        async function run() {
+            // Get the text and the colors from the API.
+            const textJSON = await getText();
+            // Get the HTML text element in the DOM.
+            const textElement = document.getElementById('the-text');
+
+            // Output the data to the console.
+            console.log(textJSON);
+
+            // Change the text and style properties to adjust the colors.
+            textElement.innerText = textJSON.text;
+            document.body.style.background = textJSON.backgroundColor;
+            textElement.style.color = textJSON.textColor;
+
+        }
+
+        setInterval(() => {
+            run();
+        }, 1000);
+    </script>
+</body>
+</html>
