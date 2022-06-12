@@ -1,3 +1,5 @@
+import ast
+import requests
 from flask import Flask, render_template, request
 
 # Instantiate Flask app/web server.
@@ -6,10 +8,8 @@ app = Flask(
     static_folder='/static/'
 )
 
-with open('insults.txt', 'r') as file:
-    global insults
-    insults = file.read().splitlines()
-
+insults = requests.get("https://raw.githubusercontent.com/DavidRuoff/german-insults/master/src/index.json").text
+insults = set(ast.literal_eval(insults))
 
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
@@ -17,7 +17,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 # Route for testing purposes.
 @app.route('/')
 def index():
-    return 'Hello World!'
+    return '<a href="/api/text/get/">TEXT API</a>'
 
 
 text = 'I am a test'
@@ -26,7 +26,7 @@ backgroundColor = 'purple'
 
 
 # Route to get the text.
-@app.route('/api/text/get')
+@app.route('/api/text/get/')
 def api_get_text():
     return {
         'text': text,
@@ -45,7 +45,7 @@ def api_change_text():
 
     # Figure out what variable the request wants to change.
     if 'text' in args.keys():
-        if args['text'] in insults:
+        if set([x.lower() for x in args['text'].split(" ")]) & insults:
             text = 'NOOO! BAAAD!!! 😡'
         else:
             text = args['text']
