@@ -1,5 +1,6 @@
 import ast
 import requests
+import time
 from flask import Flask, render_template, request
 
 # Instantiate Flask app/web server.
@@ -28,12 +29,25 @@ backgroundColor = 'purple'
 # Route to get the text.
 @app.route('/api/text/get/')
 def api_get_text():
-    return {
+    current_data = {
         'text': text,
         'textColor': textColor,
         'backgroundColor': backgroundColor,
     }
+    if request.args.get("long_poll", "true") == "false":
+        return current_data
 
+    for i in range(30):
+        new_data = {
+            'text': text,
+            'textColor': textColor,
+            'backgroundColor': backgroundColor,
+        }
+        if new_data != current_data:
+            return new_data
+        time.sleep(1)
+
+    return current_data
 
 # Route to change the text.
 @app.route('/api/text/change')
